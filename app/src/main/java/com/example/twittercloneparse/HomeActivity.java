@@ -1,15 +1,17 @@
 package com.example.twittercloneparse;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -18,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -30,6 +32,7 @@ public class HomeActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     UserAdapter userAdapter;
     private List<String> isFollowing=new ArrayList<>();
+    AlertDialog alertDialog;
 
 
     @Override
@@ -160,15 +163,72 @@ public class HomeActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id){
             case R.id.action_signout:
-                ParseUser.logOut();
-                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                intent.putExtra("source","logout");
-                startActivity(intent);
-                finish();
+                signout();
+                return true;
+            case R.id.action_tweet:
+                tweet();
+                return true;
+            case R.id.action_feed:
+                showNewsFeed();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void showNewsFeed() {
+
+    }
+
+    private void tweet() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setView(R.layout.alert_dialog_custom_view);
+        alertDialogBuilder.setPositiveButton("share", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+                //share tweet
+                shareTweet();
+            }
+        }).setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //do  nothing
+            }
+        });
+         alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+    private void shareTweet() {
+        EditText tweetEditText =   alertDialog.findViewById(R.id.tweetEditText);
+
+        ParseObject tweets=new ParseObject("tweets");
+        tweets.put("tweet",tweetEditText.getText().toString());
+        tweets.put("tweetOwner",ParseUser.getCurrentUser().getUsername());
+
+        tweets.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e==null)
+                {
+                    Toast.makeText(HomeActivity.this, "Tweet shared successfully", Toast.LENGTH_SHORT).show();
+                }else
+                {
+                    Toast.makeText(HomeActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, e.getMessage());
+                }
+            }
+        });
+
+    }
+
+    private void signout() {
+        ParseUser.logOut();
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        intent.putExtra("source","logout");
+        startActivity(intent);
+        finish();
     }
 
 }

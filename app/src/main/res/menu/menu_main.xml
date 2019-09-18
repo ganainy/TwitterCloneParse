@@ -7,4 +7,18 @@
         android:orderInCategory="100"
         android:title="Signout"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_tweet"
+        android:orderInCategory="100"
+        android:title="Tweet"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_feed"
+        android:orderInCategory="100"
+        android:title="Show my feed"
+        app:showAsAction="never" />
+
+
 </menu>
